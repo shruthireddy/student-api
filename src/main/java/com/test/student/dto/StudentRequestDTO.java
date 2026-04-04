@@ -16,6 +16,9 @@ public class StudentRequestDTO {
     @Max(value = 65, message = "Age cannot exceed 65")
     private Integer age;
 
+    public StudentRequestDTO() {
+    }
+
     public String getName() {
         return name;
     }
