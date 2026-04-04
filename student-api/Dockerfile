@@ -1,13 +1,21 @@
-# Step 1: Use a stable Java 21 image
-FROM eclipse-temurin:21-jdk-jammy
-
-# Step 2: Set the working directory inside the container
+# STAGE 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-21-jammy AS build
 WORKDIR /app
 
-# Step 3: Copy the JAR file from your target folder
-# Note: Render uses the Root Directory setting, so 'target/...' is correct
-# if your Root Directory is set to 'student-api'
-COPY target/student-api-0.0.1-SNAPSHOT.jar app.jar
+# Copy the pom.xml and source code
+COPY pom.xml .
+COPY src ./src
 
-# Step 4: Run the application
+# Build the JAR file
+RUN mvn clean package -DskipTests
+
+# STAGE 2: Run the application
+FROM eclipse-temurin:21-jdk-jammy
+WORKDIR /app
+
+# Copy the JAR from the 'build' stage
+COPY --from=build /app/target/student-api-0.0.1-SNAPSHOT.jar app.jar
+
+# Run the app
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
